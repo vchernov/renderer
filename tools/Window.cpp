@@ -14,7 +14,7 @@ Window::~Window()
     SDL_Quit();
 }
 
-void Window::render(void* buffer, int width, int height)
+void Window::render(void* buffer, int bufferWidth, int bufferHeight, uint32_t fps)
 {
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     Uint32 rmask = 0xff000000;
@@ -28,9 +28,11 @@ void Window::render(void* buffer, int width, int height)
     Uint32 amask = 0xff000000;
     #endif
 
-    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(buffer, width, height, 24, width * 3, rmask, gmask, bmask, amask);
+    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(buffer, bufferWidth, bufferHeight, 24, bufferWidth * 3, rmask, gmask, bmask, amask);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+
+    uint32_t minFrameTime = 1000 / fps;
 
     bool exit = false;
     while (!exit)
@@ -48,10 +50,16 @@ void Window::render(void* buffer, int width, int height)
             }
         }
 
+        uint32_t frameStartTime = SDL_GetTicks();
+
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(renderer);
+
+        uint32_t frameTime = SDL_GetTicks() - frameStartTime;
+        if (frameTime < minFrameTime)
+            SDL_Delay(minFrameTime - frameTime);
     }
 
     SDL_DestroyTexture(texture);
