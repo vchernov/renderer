@@ -6,7 +6,7 @@ FrameBuffer::FrameBuffer(int width, int height) : width(width), height(height)
 {
     assert(width >= 0);
     assert(height >= 0);
-    pixels = new glm::vec3[width * height];
+    pixels = new glm::vec3[(size_t) width * height];
 }
 
 FrameBuffer::~FrameBuffer()

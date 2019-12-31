@@ -15,7 +15,7 @@ int main(int argc, char** argv)
             fb(i, j) = glm::vec3(j / (float)fb.height, i / (float)fb.width, 0.0f);
 
     Window wnd(800, 600);
-    uint8_t* buffer = new uint8_t[fb.width * fb.height * 3];
+    uint8_t* buffer = new uint8_t[(size_t) fb.width * fb.height * 3];
     fb.get(buffer, glm::packUnorm1x8);
     wnd.render(buffer, fb.width, fb.height);
     delete[] buffer;

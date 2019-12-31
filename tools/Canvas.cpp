@@ -1,5 +1,7 @@
 #include "Canvas.h"
 
+#include <algorithm>
+
 Canvas::Canvas(FrameBuffer& fb) : fb(fb)
 {
 }
@@ -11,6 +13,7 @@ void Canvas::drawPoint(glm::ivec2 location, glm::vec3 color)
     fb(location.x, location.y) = color;
 }
 
+/*
 void Canvas::drawLine(glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
 {
     if (glm::abs(point2.y - point1.y) < glm::abs(point2.x - point1.x))
@@ -87,6 +90,41 @@ void Canvas::drawLine(glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
                 d -= 2 * delta.y;
             }
             d += 2 * delta.x;
+        }
+    }
+}
+*/
+
+void Canvas::drawLine(glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
+{
+    bool steep = false;
+    if (glm::abs(point1.x - point2.x) < glm::abs(point1.y - point2.y))
+    {
+        std::swap(point1.x, point1.y);
+        std::swap(point2.x, point2.y);
+        steep = true;
+    }
+    if (point1.x > point2.x)
+    {
+        std::swap(point1.x, point2.x);
+        std::swap(point1.y, point2.y);
+    }
+    int dx = point2.x - point1.x;
+    int dy = point2.y - point1.y;
+    int derr = std::abs(dy) * 2;
+    int err = 0;
+    int y = point1.y;
+    for (int x = point1.x; x <= point2.x; x++)
+    {
+        if (steep)
+            drawPoint({ y, x }, color);
+        else
+            drawPoint({ x, y }, color);
+        err += derr;
+        if (err > dx)
+        {
+            y += (point2.y > point1.y) ? 1 : -1;
+            err -= dx * 2;
         }
     }
 }

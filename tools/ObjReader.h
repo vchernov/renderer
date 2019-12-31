@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <string>
+
 #include "Mesh.h"
 
 class ObjReader
