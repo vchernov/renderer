@@ -7,6 +7,7 @@
 #include <ObjReader.h>
 
 #include <glm/gtc/packing.hpp>
+#include <glm/gtc/random.hpp>
 
 int main(int argc, char** argv)
 {
@@ -18,9 +19,10 @@ int main(int argc, char** argv)
     Mesh mesh = ObjReader::load(fn);
 
     FrameBuffer fb(1024, 1024);
-    fb.fill({ 0.0f, 0.0f, 0.0f });
+    fb.fill({0.0f, 0.0f, 0.0f});
     Canvas canvas(fb);
 
+    /*
     for (const auto& face : mesh.faces)
     {
         for (int i = 0; i < 3; i++)
@@ -41,9 +43,29 @@ int main(int argc, char** argv)
             canvas.drawLine(point1, point2, { 1.0f, 1.0f, 1.0f });
         }
     }
+    //*/
+
+    //*
+    for (const auto& face : mesh.faces)
+    {
+        glm::ivec2 screenCoords[3];
+        for (int i = 0; i < 3; i++)
+        {
+            glm::vec3 vertex = mesh.vertices[face.vertexIndices[i]];
+            screenCoords[i] = {
+                (vertex.x + 1.0f) * fb.width * 0.5f,
+                (vertex.y + 1.0f) * fb.height * 0.5f
+            };
+        }
+
+        glm::vec3 color = glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f));
+        canvas.triangle(screenCoords[0], screenCoords[1], screenCoords[2], color);
+        //canvas.wireframe(screenCoords[0], screenCoords[1], screenCoords[2], {1.0f, 1.0f, 1.0f});
+    }
+    //*/
 
     Window wnd(1024, 1024);
-    uint8_t* buffer = new uint8_t[(size_t) fb.width * fb.height * 3];
+    uint8_t* buffer = new uint8_t[(size_t)fb.width * fb.height * 3];
     fb.get(buffer, glm::packUnorm1x8);
     //fb.get(buffer, [](float c) { return static_cast<uint8_t>(c * 255.0f); });
     wnd.render(buffer, fb.width, fb.height);

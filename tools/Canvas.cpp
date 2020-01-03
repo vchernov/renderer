@@ -95,36 +95,82 @@ void Canvas::drawLine(glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
 }
 */
 
-void Canvas::drawLine(glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
+void Canvas::drawLine(glm::ivec2 point0, glm::ivec2 point1, glm::vec3 color)
 {
     bool steep = false;
-    if (glm::abs(point1.x - point2.x) < glm::abs(point1.y - point2.y))
+    if (glm::abs(point0.x - point1.x) < glm::abs(point0.y - point1.y))
     {
+        std::swap(point0.x, point0.y);
         std::swap(point1.x, point1.y);
-        std::swap(point2.x, point2.y);
         steep = true;
     }
-    if (point1.x > point2.x)
+    if (point0.x > point1.x)
     {
-        std::swap(point1.x, point2.x);
-        std::swap(point1.y, point2.y);
+        std::swap(point0.x, point1.x);
+        std::swap(point0.y, point1.y);
     }
-    int dx = point2.x - point1.x;
-    int dy = point2.y - point1.y;
+    int dx = point1.x - point0.x;
+    int dy = point1.y - point0.y;
     int derr = std::abs(dy) * 2;
     int err = 0;
-    int y = point1.y;
-    for (int x = point1.x; x <= point2.x; x++)
+    int y = point0.y;
+    for (int x = point0.x; x <= point1.x; x++)
     {
         if (steep)
-            drawPoint({ y, x }, color);
+            drawPoint({y, x}, color);
         else
-            drawPoint({ x, y }, color);
+            drawPoint({x, y}, color);
         err += derr;
         if (err > dx)
         {
-            y += (point2.y > point1.y) ? 1 : -1;
+            y += (point1.y > point0.y) ? 1 : -1;
             err -= dx * 2;
         }
+    }
+}
+
+void Canvas::wireframe(glm::ivec2 point0, glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
+{
+    drawLine(point0, point1, color);
+    drawLine(point1, point2, color);
+    drawLine(point2, point0, color);
+}
+
+void Canvas::triangle(glm::ivec2 point0, glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
+{
+    if (point0.y == point1.y && point0.y == point2.y)
+        return;
+
+    if (point0.y > point1.y)
+        std::swap(point0, point1);
+    if (point0.y > point2.y)
+        std::swap(point0, point2);
+    if (point1.y > point2.y)
+        std::swap(point1, point2);
+
+    int totalHeight = point2.y - point0.y;
+    int firstHalfHeight = point1.y - point0.y;
+    int secondHalfHeight = point2.y - point1.y;
+    for (int i = 0; i < totalHeight; i++)
+    {
+        float alpha = (float)i / totalHeight;
+        glm::ivec2 a = point0 + glm::ivec2(glm::round(glm::vec2(point2 - point0) * alpha));
+
+        glm::ivec2 b;
+        if (i > firstHalfHeight || point1.y == point0.y)
+        {
+            float beta = (float)(i - firstHalfHeight) / secondHalfHeight;
+            b = point1 + glm::ivec2(glm::round(glm::vec2(point2 - point1) * beta));
+        }
+        else
+        {
+            float beta = (float)i / firstHalfHeight;
+            b = point0 + glm::ivec2(glm::round(glm::vec2(point1 - point0) * beta));
+        }
+
+        if (a.x > b.x)
+            std::swap(a, b);
+        for (int x = a.x; x <= b.x; x++)
+            drawPoint({x, point0.y + i}, color);
     }
 }
