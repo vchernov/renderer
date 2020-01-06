@@ -39,7 +39,7 @@ Mesh ObjReader::load(const std::string& fn)
         }
         else if (descriptor == "f")
         {
-            Face face;
+            Face face{};
             int index;
             char delimiter;
             for (int i = 0; i < 3; i++)
