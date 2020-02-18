@@ -91,41 +91,43 @@ void Canvas::wireframe(glm::ivec2 point0, glm::ivec2 point1, glm::ivec2 point2, 
     line(point2.x, point2.y, point0.x, point0.y, color);
 }
 
-void Canvas::scanline(int y, int x1, int x2, glm::vec3 color)
-{
-    if (x1 > x2)
-        std::swap(x1, x2);
-    for (int x = x1; x <= x2; x++)
-        pixel(x, y, color);
-}
-
+// Draws flat triangle using scanline algorithm. Inspired by http://www-users.mat.uni.torun.pl/~wrona/3d_tutor/tri_fillers.html
 void Canvas::triangle(glm::ivec2 point0, glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color)
 {
-    if (point0.y == point1.y && point1.y == point2.y)
-        return;
+    glm::ivec2 points[] = {point0, point1, point2};
+    std::sort(points, points + 3, [](const glm::ivec2& a, const glm::ivec2& b) -> bool
+        {
+            return (a.y == b.y) ? (a.x < b.x) : (a.y < b.y);
+        }
+    );
 
-    if (point0.y > point1.y)
-        std::swap(point0, point1);
-    if (point0.y > point2.y)
-        std::swap(point0, point2);
-    if (point1.y > point2.y)
-        std::swap(point1, point2);
+    float dx01 = (float)(points[1].x - points[0].x) / (float)(points[1].y - points[0].y);
+    float dx02 = (float)(points[2].x - points[0].x) / (float)(points[2].y - points[0].y);
+    float dx12 = (float)(points[2].x - points[1].x) / (float)(points[2].y - points[1].y);
 
-    pixel(point0.x, point0.y, color);
-
-    for (int y = point0.y + 1; y < point1.y; y++)
+    auto horizontalLine = [this, &color](int y, int from, int to)
     {
-        float x01 = point0.x + (float)(point1.x - point0.x) * (float)(y - point0.y) / (float)(point1.y - point0.y);
-        float x02 = point0.x + (float)(point2.x - point0.x) * (float)(y - point0.y) / (float)(point2.y - point0.y);
-        scanline(y, (int)(x01 + 0.5f), (int)(x02 + 0.5f), color);
-    }
+        for (int x = from; x <= to; x++)
+            pixel(x, y, color);
+    };
 
-    for (int y = point1.y; y < point2.y; y++)
+    float xl, xr;
+    xl = xr = (float)points[0].x;
+
+    if (dx01 < dx02)
     {
-        float x12 = point1.x + (float)(point2.x - point1.x) * (float)(y - point1.y) / (float)(point2.y - point1.y);
-        float x02 = point0.x + (float)(point2.x - point0.x) * (float)(y - point0.y) / (float)(point2.y - point0.y);
-        scanline(y, (int)(x12 + 0.5f), (int)(x02 + 0.5f), color);
+        for (int y = points[0].y; y < points[1].y; y++, xl += dx01, xr += dx02)
+            horizontalLine(y, (int)xl, (int)xr);
+        xl = (float)points[1].x;
+        for (int y = points[1].y; y <= points[2].y; y++, xl += dx12, xr += dx02)
+            horizontalLine(y, (int)xl, (int)xr);
     }
-
-    pixel(point2.x, point2.y, color);
+    else if (dx01 > dx02)
+    {
+        for (int y = points[0].y; y < points[1].y; y++, xl += dx02, xr += dx01)
+            horizontalLine(y, (int)xl, (int)xr);
+        xr = (float)points[1].x;
+        for (int y = points[1].y; y <= points[2].y; y++, xl += dx02, xr += dx12)
+            horizontalLine(y, (int)xl, (int)xr);
+    }
 }

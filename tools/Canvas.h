@@ -16,8 +16,6 @@ public:
 
     void wireframe(glm::ivec2 point0, glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color);
 
-    void scanline(int y, int x1, int x2, glm::vec3 color);
-
     void triangle(glm::ivec2 point0, glm::ivec2 point1, glm::ivec2 point2, glm::vec3 color);
 
 private:
