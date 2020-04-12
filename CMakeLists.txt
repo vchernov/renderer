@@ -7,6 +7,3 @@ endif()
 project(renderer)
 
 add_subdirectory(tools)
-add_subdirectory(helloworld)
-add_subdirectory(wireframe)
-add_subdirectory(sw)

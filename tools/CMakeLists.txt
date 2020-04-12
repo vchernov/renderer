@@ -1,16 +1,28 @@
 add_library(tools
-    FrameBuffer.cpp
-    FrameBuffer.h
-    Window.cpp
-    Window.h
+    barycentric.cpp
+    barycentric.h
+    Buffer.h
     Canvas.cpp
     Canvas.h
+    CompositeRenderOutput.cpp
+    CompositeRenderOutput.h
+    FileRenderOutput.cpp
+    FileRenderOutput.h
+    FrameBuffer.cpp
+    FrameBuffer.h
+    IRenderOutput.h
     Mesh.h
     ObjReader.cpp
     ObjReader.h
+    ppm.cpp
+    ppm.h
+    Window.cpp
+    Window.h
+    WindowRenderOutput.cpp
+    WindowRenderOutput.h
 )
 
-target_compile_features(tools PUBLIC cxx_std_14)
+target_compile_features(tools PUBLIC cxx_std_17)
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(tools PUBLIC glm)

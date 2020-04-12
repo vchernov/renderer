@@ -1,22 +1,15 @@
 #pragma once
 
+#include "Buffer.h"
+
 #include <glm/glm.hpp>
 
-class FrameBuffer
+class FrameBuffer : public Buffer<glm::vec3>
 {
 public:
     FrameBuffer(int width, int height);
-    virtual ~FrameBuffer();
-
-    const int width;
-    const int height;
-
-    glm::vec3& operator()(int x, int y);
-
-    void fill(glm::vec3 color);
 
     void get(uint8_t* buffer, uint8_t (*pack)(float));
 
-private:
-    glm::vec3* pixels;
+    glm::mat4 getViewportMatrix() const;
 };

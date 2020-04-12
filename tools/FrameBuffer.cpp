@@ -1,28 +1,8 @@
 #include "FrameBuffer.h"
 
-#include <cassert>
-
-FrameBuffer::FrameBuffer(int width, int height) : width(width), height(height)
+FrameBuffer::FrameBuffer(int width, int height)
+    : Buffer(width, height)
 {
-    assert(width >= 0);
-    assert(height >= 0);
-    pixels = new glm::vec3[(size_t) width * height];
-}
-
-FrameBuffer::~FrameBuffer()
-{
-    delete[] pixels;
-}
-
-glm::vec3& FrameBuffer::operator()(int x, int y)
-{
-    return pixels[y * width + x];
-}
-
-void FrameBuffer::fill(glm::vec3 color)
-{
-    for (auto i = 0, size = width * height; i < size; i++)
-        pixels[i] = color;
 }
 
 void FrameBuffer::get(uint8_t* buffer, uint8_t (*pack)(float))
@@ -39,4 +19,12 @@ void FrameBuffer::get(uint8_t* buffer, uint8_t (*pack)(float))
             offset += 3;
         }
     }
+}
+
+glm::mat4 FrameBuffer::getViewportMatrix() const
+{
+    glm::mat4 viewport(1.0f);
+    viewport[0][0] = viewport[3][0] = (float)(width - 1) * 0.5f;
+    viewport[1][1] = viewport[3][1] = (float)(height - 1) * 0.5f;
+    return viewport;
 }

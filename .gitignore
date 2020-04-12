@@ -1,1 +1,6 @@
 build/
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
+packages.config
